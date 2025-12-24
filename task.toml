@@ -1,0 +1,65 @@
+version = "1.0"
+
+[metadata]
+name = "optimize-callbot-enterprise-scale"
+title = "Optimize Callbot Enterprise Scale Performance"
+description = """
+Diagnose and resolve critical performance issues in a Django-based Callbot AI system 
+serving Enterprise customers with 70M+ customers and 1B+ call records. 
+The agent must implement systematic profiling, N+1 query elimination, 
+cursor pagination, and strategic indexing to achieve sub-500ms response times.
+"""
+author_name = "Dat Dinh"
+author_email = "datdinh201799@gmail.com"
+difficulty = "hard"
+category = "performance-tuning"
+tags = [
+    "python",
+    "django", 
+    "django-rest-framework",
+    "postgresql",
+    "redis",
+    "optimization",
+    "n-plus-one",
+    "database-indexing",
+    "cursor-pagination",
+    "multi-tenant",
+    "enterprise",
+    "profiling"
+]
+expert_time_estimate_min = 120.0
+junior_time_estimate_min = 480.0
+
+[verifier]
+timeout_sec = 600.0  # 10 min - need time for performance tests with data
+
+[agent]
+timeout_sec = 1800.0  # 30 min - complex task requires more time
+
+[environment]
+build_timeout_sec = 900.0  # 15 min - need to setup PostgreSQL + Redis + seed data
+docker_image = "python:3.11-slim-bookworm"
+cpus = 4
+memory = "16G"  # Need more RAM for large dataset simulation
+storage = "50G"  # Need storage for PostgreSQL data
+
+[environment.services]
+# PostgreSQL database with realistic configuration
+postgresql = { image = "postgres:15", memory = "4G" }
+# Redis for caching
+redis = { image = "redis:7-alpine", memory = "2G" }
+
+[scoring]
+# Weighted scoring configuration
+type = "weighted"
+pass_threshold = 0.85
+
+[scoring.categories]
+profiling_tools = 0.15
+index_optimization = 0.15
+query_optimization = 0.20
+pagination = 0.10
+permission_caching = 0.10
+performance_targets = 0.10
+write_performance = 0.10  # NEW: INSERT/UPDATE speed with indexes
+deadlock_prevention = 0.10  # NEW: Concurrent write safety
