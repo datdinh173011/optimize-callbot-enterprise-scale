@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from app.models import Customer, Call
-from app.serializers import CustomerSerializer
+from .serializers import CustomerSerializer
 from .pagination import CustomerCursorPagination
 from .permissions import WorkspacePermission, get_permission_queryset_filter
 from .caching import CacheManager
@@ -39,7 +39,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
     
     serializer_class = CustomerSerializer
     pagination_class = CustomerCursorPagination
-    permission_classes = [IsAuthenticated, WorkspacePermission]
+    permission_classes = [WorkspacePermission]
     
     def get_queryset(self):
         """Build optimized queryset with all prefetches and annotations"""
@@ -92,12 +92,30 @@ class CustomerViewSet(viewsets.ModelViewSet):
         return qs
     
     def list(self, request, *args, **kwargs):
-        """List with profiling support"""
+        """Override list to add profiling data and validate workspace_id"""
+        workspace_id = request.query_params.get('workspace_id')
+        
+        if not workspace_id:
+            return Response(
+                {"error": "workspace_id is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            import uuid
+            uuid.UUID(workspace_id)
+        except (ValueError, TypeError):
+            return Response(
+                {"error": "Invalid workspace_id format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         response = super().list(request, *args, **kwargs)
         
-        # End serializer timing
-        if hasattr(request, '_layer_analyzer'):
-            request._layer_analyzer.end_serializer()
+        # Inject profiling data if requested
+        if request.query_params.get('_profile') == 'true' and hasattr(request, '_layer_analyzer'):
+            if isinstance(response.data, dict):
+                response.data['_profiling'] = request._layer_analyzer.get_breakdown()
         
         return response
     

@@ -66,10 +66,16 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/callbot
       - REDIS_URL=redis://redis:6379/0
       - DJANGO_SETTINGS_MODULE=app.settings
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=callbot
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - DEBUG=1
     volumes:
       - ../app:/app
       - ../logs:/logs
+      - ../tests:/tests
     ports:
       - "8000:8000"
     depends_on:
@@ -79,6 +85,10 @@ services:
         condition: service_healthy
     command: >
       bash -c "
+        echo 'Waiting for services...' &&
+        while ! pg_isready -h postgres -p 5432 -U postgres > /dev/null 2>&1; do sleep 1; done &&
+        python3 -c \"import redis; import os; r=redis.from_url(os.environ.get('REDIS_URL', 'redis://redis:6379/0')); r.ping()\" &&
+        echo 'Services ready!' &&
         python manage.py migrate --noinput &&
         python manage.py runserver 0.0.0.0:8000
       "

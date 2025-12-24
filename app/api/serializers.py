@@ -51,7 +51,6 @@ class CustomerSerializer(serializers.ModelSerializer):
             'email',
             'phone',
             'status',
-            'tags',
             'other_attributes',
             'is_deleted',
             'created_at',

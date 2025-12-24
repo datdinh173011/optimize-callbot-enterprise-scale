@@ -17,6 +17,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pytest
 import httpx
 
+pytestmark = pytest.mark.django_db
+
 
 # =============================================================================
 # Constants
@@ -750,7 +752,7 @@ class TestCachingIntegration:
         sys.path.insert(0, "/app")
         try:
             import redis
-            r = redis.from_url("redis://localhost:6379/0")
+            r = redis.from_url("redis://redis:6379/0")
             r.ping()
         except Exception as e:
             pytest.fail(f"Redis connection failed: {e}")

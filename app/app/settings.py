@@ -24,7 +24,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
-    # ProfilingMiddleware will be added by AI agent
+    'profiling.layer_analyzer.ProfilingMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -52,7 +52,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # Simplified for benchmark
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # ⚠️ SLOW - Agent should change this
+    'DEFAULT_PAGINATION_CLASS': 'api.pagination.CustomerCursorPagination',
     'PAGE_SIZE': 20,
 }
 
